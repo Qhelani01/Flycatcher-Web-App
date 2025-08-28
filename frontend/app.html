@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flycatcher – Southern Africa Bird Observations</title>
+    <style>
+        :root { --bg:#f8f9fa; --panel:#ffffff; --muted:#7D7D7D; --text:#4A4A4A; --accent:#4A4A4A; --border:#D7D7D7; }
+        *{ box-sizing:border-box }
+        body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif; background:var(--bg); color:var(--text) }
+        header{ padding:14px 16px; border-bottom:1px solid var(--border); background:var(--panel); position:sticky; top:0; z-index:10 }
+        .header-inner{ display:flex; gap:16px; align-items:center; max-width:1200px; margin:0 auto }
+        .brand{ font-weight:600; letter-spacing:.2px }
+        .controls{ display:flex; gap:8px; flex-wrap:wrap; margin-left:auto }
+        input,select,button{ background:var(--panel); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px }
+        button{ background:var(--accent); border:0; cursor:pointer }
+        button:disabled{ opacity:.6; cursor:not-allowed }
+        main{ display:grid; grid-template-columns:1fr 360px; gap:12px; max-width:1200px; margin:12px auto; padding:0 12px }
+        #map{ min-height:70vh; height:calc(100vh - 120px); background:var(--panel); border:1px solid var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center }
+        .side{ display:flex; flex-direction:column; gap:12px }
+        .card{ background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px }
+        .stat{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+        .stat .box{ background:var(--bg); border:1px solid var(--border); padding:12px; border-radius:10px; text-align:center }
+        .muted{ color:var(--muted); font-size:13px }
+        .list{ display:grid; gap:8px; max-height:45vh; overflow:auto }
+        .row{ display:grid; gap:6px; background:var(--bg); border:1px solid var(--border); padding:10px; border-radius:10px }
+        .row h4{ margin:0; font-size:14px }
+        .row small{ color:var(--muted) }
+        @media (max-width:960px){ main{ grid-template-columns:1fr } #map{ height:50vh } }
+        .error{ color:#fca5a5 }
+        
+        .bird-actions {
+            margin-top: 0.5rem;
+        }
+        
+        .learn-more-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .learn-more-btn:hover {
+            background: var(--medium-gray);
+        }
+        
+        /* Fix for the Load Demo Data button */
+        #loadBtn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        #loadBtn:hover:not(:disabled) {
+            background: #2A2A2A;
+            transform: translateY(-1px);
+        }
+        
+        #loadBtn:disabled {
+            background: var(--medium-light-gray);
+            color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <div class="brand">
+            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem;">
+                <img src="image.png" alt="Flycatcher Logo" style="width: 32px; height: 32px; object-fit: contain;" />
+                Flycatcher
+            </a>
+        </div>
+        <div class="controls">
+            <select id="region">
+                <option value="ZA" selected>South Africa (ZA)</option>
+                <option value="BW">Botswana (BW)</option>
+                <option value="NA">Namibia (NA)</option>
+                <option value="ZW">Zimbabwe (ZW)</option>
+                <option value="MZ">Mozambique (MZ)</option>
+                <option value="SZ">Eswatini (SZ)</option>
+                <option value="LS">Lesotho (LS)</option>
+            </select>
+            <select id="back">
+                <option value="1">Last 24 hours</option>
+                <option value="3">Last 3 days</option>
+                <option value="7" selected>Last 7 days</option>
+                <option value="14">Last 14 days</option>
+                <option value="30">Last 30 days</option>
+            </select>
+            <button id="loadBtn">Load Demo Data</button>
+            <a href="/" class="btn btn-secondary" style="text-decoration: none; padding: 8px 16px; border-radius: 8px; border: 2px solid var(--accent); color: var(--accent); background: transparent; transition: all 0.3s ease; font-weight: 500;">← Back</a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div id="map"><div id="mapError" class="error" style="display:none">Google Maps failed to load. Please check your internet connection and that the API key is valid for this domain (localhost).</div></div>
+    <aside class="side">
+        <section class="card">
+            <div class="muted">Click on the map or choose a country and time range, then press Load observations. Pins and this list will populate with live eBird data.</div>
+        </section>
+        <section class="card stat">
+            <div class="box"><div class="muted">Observations</div><div id="obsCount" style="font-weight:700; font-size:18px">0</div></div>
+            <div class="box"><div class="muted">Species</div><div id="spCount" style="font-weight:700; font-size:18px">0</div></div>
+        </section>
+        <section class="card">
+            <div class="muted" style="margin-bottom:6px">Recent observations</div>
+            <div id="list" class="list"></div>
+        </section>
+    </aside>
+</main>
+
+<script>
+let map, markers = [];
+function loadGoogleMaps(apiKey){
+    return new Promise((resolve, reject)=>{
+        if(window.google && google.maps) return resolve();
+        const s = document.createElement('script');
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+        s.async = true; s.defer = true;
+        s.onload = ()=> resolve();
+        s.onerror = ()=> reject(new Error('Maps script failed to load'));
+        document.head.appendChild(s);
+    });
+}
+
+async function bootstrap(){
+    // Get Maps key first
+    let cfg;
+    try { cfg = await fetch('/api/config').then(r=>r.json()); } catch(e){ cfg = {}; }
+    const gKey = cfg.googleMapsApiKey;
+
+    try{
+        await loadGoogleMaps(gKey);
+        initMap();
+    }catch(err){
+        document.getElementById('mapError').style.display = 'block';
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', loadData);
+}
+
+function initMap(){
+    map = new google.maps.Map(document.getElementById('map'),{
+        center:{lat:-23.5,lng:24.0}, zoom:5, mapTypeId:'terrain',
+        styles:[{featureType:'poi',elementType:'labels',stylers:[{visibility:'off'}]}]
+    });
+}
+
+function clearMarkers(){ markers.forEach(m=>m.setMap(null)); markers = []; }
+
+function renderList(items){
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    if(!items.length){ list.innerHTML = '<div class="muted">No observations found.</div>'; return; }
+    const frag = document.createDocumentFragment();
+    items.slice(0, 50).forEach(o=>{
+        const d = document.createElement('div'); d.className='row';
+        d.innerHTML = `
+            <h4>${o.common_name}</h4>
+            <small><em>${o.scientific_name || ''}</em></small>
+            <small>${o.location_name || ''}</small>
+            <small>${(o.latitude??0).toFixed(3)}, ${(o.longitude??0).toFixed(3)} • ${o.observation_date || ''} • count: ${o.count ?? 'n/a'}</small>
+            <div class="bird-actions">
+                <button class="learn-more-btn" onclick="showBirdInfo('${o.species_code}', '${o.common_name}')">Learn More</button>
+            </div>
+        `;
+        frag.appendChild(d);
+    });
+    list.appendChild(frag);
+}
+
+async function showBirdInfo(speciesCode, commonName) {
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`/api/species/${speciesCode}`);
+        if (response.ok) {
+            const data = await response.json();
+            showBirdModal(data);
+        } else {
+            const errorData = await response.json();
+            alert(`Could not load information for ${commonName}: ${errorData.error || 'Unknown error'}`);
+        }
+    } catch (error) {
+        console.error('Error fetching bird info:', error);
+        alert(`Error loading information for ${commonName}`);
+    } finally {
+        // Restore button state
+        btn.textContent = originalText;
+        btn.disabled = false;
+    }
+}
+
+function showBirdModal(birdData) {
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `;
+    
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+    `;
+    
+    modalContent.innerHTML = `
+        <button onclick="this.closest('.modal-overlay').remove()" style="
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--medium-gray);
+        ">&times;</button>
+        
+        <h2 style="color: var(--dark-gray); margin-bottom: 1.5rem;">${birdData.common_name}</h2>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <strong style="color: var(--dark-gray); font-size: 1.1rem;">Family:</strong> 
+            <span style="color: var(--medium-gray); font-size: 1.1rem;">${birdData.family || 'Not available'}</span>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+            <strong style="color: var(--dark-gray); font-size: 1.1rem;">Order:</strong> 
+            <span style="color: var(--medium-gray); font-size: 1.1rem;">${birdData.order || 'Not available'}</span>
+        </div>
+        
+        ${birdData.note ? `
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <small style="color: var(--medium-gray);">${birdData.note}</small>
+        </div>
+        ` : ''}
+        
+        <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--light-gray);">
+            <small style="color: var(--medium-gray);">
+                Data provided by eBird API
+            </small>
+        </div>
+    `;
+    
+    modal.appendChild(modalContent);
+    modal.className = 'modal-overlay';
+    document.body.appendChild(modal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+function renderMarkers(items){
+    clearMarkers();
+    items.forEach(o=>{
+        if(o.latitude == null || o.longitude == null) return;
+        const m = new google.maps.Marker({ position:{lat:o.latitude,lng:o.longitude}, map, title:o.common_name });
+        const iw = new google.maps.InfoWindow({ content:`<div style="min-width:200px"><strong>${o.common_name}</strong><br/><em>${o.scientific_name||''}</em><br/>${o.location_name||''}<br/>${o.observation_date||''} • count: ${o.count??'n/a'}</div>` });
+        m.addListener('click', ()=> iw.open({anchor:m, map}));
+        markers.push(m);
+    });
+}
+
+async function loadData(){
+    const region = document.getElementById('region').value;
+    const back = document.getElementById('back').value;
+    const btn = document.getElementById('loadBtn');
+    
+    // Check if data has already been loaded
+    if (window.dataLoaded) {
+        alert('Demo mode: Data can only be loaded once per session. Please refresh the page to try again.');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Loading...';
+    
+    try{
+        const res = await fetch(`/api/observations?region=${encodeURIComponent(region)}&back=${encodeURIComponent(back)}&maxResults=1000`);
+        const data = await res.json();
+        if(data.error){ throw new Error(`${data.error} (status ${data.status||''})`); }
+        const items = data.observations || [];
+        document.getElementById('obsCount').textContent = items.length;
+        document.getElementById('spCount').textContent = new Set(items.map(i=>i.species_code)).size;
+        renderList(items); renderMarkers(items);
+        
+        // Mark data as loaded and update button
+        window.dataLoaded = true;
+        btn.textContent = 'Data Loaded ✓';
+        btn.style.background = 'var(--accent)';
+        btn.style.cursor = 'not-allowed';
+        
+        // Show demo message
+        showDemoMessage();
+        
+    }catch(err){
+        alert('Error loading observations: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Load observations';
+    }
+}
+
+       function showDemoMessage() {
+           // Create demo message
+           const demoMsg = document.createElement('div');
+           demoMsg.style.cssText = `
+               position: fixed;
+               top: 20px;
+               right: 20px;
+               background: var(--accent);
+               color: white;
+               padding: 1rem;
+               border-radius: 8px;
+               box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+               z-index: 1000;
+               max-width: 300px;
+               font-size: 0.9rem;
+           `;
+           demoMsg.innerHTML = `
+               <strong>Demo Mode</strong><br>
+               Data loaded successfully! This is a demo version - you can only load data once per session.
+           `;
+    
+    document.body.appendChild(demoMsg);
+    
+    // Remove message after 8 seconds
+    setTimeout(() => {
+        if (demoMsg.parentNode) {
+            demoMsg.parentNode.removeChild(demoMsg);
+        }
+    }, 8000);
+}
+
+bootstrap();
+</script>
+
+<!-- Footer -->
+<footer style="background: var(--light-gray); padding: 1.5rem; text-align: center; margin-top: 2rem; border-top: 1px solid var(--light-gray);">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="color: var(--medium-gray); margin-bottom: 1rem; font-size: 0.9rem;">
+            This app is powered by <a href="https://ebird.org" target="_blank" rel="noopener noreferrer" style="color: var(--dark-gray); text-decoration: none;">eBird</a> and <a href="https://developers.google.com/maps" target="_blank" rel="noopener noreferrer" style="color: var(--dark-gray); text-decoration: none;">Google Maps</a>
+        </div>
+        <div style="color: var(--medium-gray); font-size: 0.85rem; border-top: 1px solid var(--medium-light-gray); padding-top: 1rem;">
+            © Qhelani Moyo 2025. All rights reserved.
+        </div>
+    </div>
+</footer>
+</body>
+</html>

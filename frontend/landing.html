@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flycatcher - Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --light-gray: #D7D7D7;
+            --medium-light-gray: #B0B0B0;
+            --medium-gray: #7D7D7D;
+            --dark-gray: #4A4A4A;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            padding: 1.5rem;
+            z-index: 1000;
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            background-color: var(--light-gray);
+        }
+
+        .hamburger-icon {
+            width: 24px;
+            height: 2px;
+            background-color: var(--dark-gray);
+            margin: 4px 0;
+            transition: 0.3s;
+            display: block;
+        }
+
+        .hamburger.active .hamburger-icon:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+
+        .hamburger.active .hamburger-icon:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active .hamburger-icon:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: var(--white);
+            box-shadow: -5px 0 15px var(--shadow);
+            transition: right 0.3s ease;
+            z-index: 999;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .nav-menu.active {
+            right: 0;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .nav-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--medium-gray);
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            min-width: 32px;
+            min-height: 32px;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section h3 {
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .nav-section p {
+            color: var(--medium-gray);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-section a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-section a:hover {
+            color: var(--medium-gray);
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+
+        .contact-link:hover {
+            background: var(--medium-light-gray);
+            transform: translateY(-2px);
+        }
+
+        .contact-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .developer-profile {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .profile-image {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .profile-image img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--light-gray);
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-image img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px var(--shadow);
+        }
+
+        .footer {
+            background: var(--light-gray);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-text {
+            color: var(--medium-gray);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--medium-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--dark-gray);
+        }
+
+        .copyright {
+            color: var(--medium-gray);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--medium-light-gray);
+            padding-top: 1rem;
+        }
+
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .logo-image {
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-image:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-text {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--dark-gray);
+            letter-spacing: -0.02em;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            color: var(--medium-gray);
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+            font-weight: 300;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .description {
+            color: var(--medium-gray);
+            line-height: 1.7;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.4s both;
+            max-width: 700px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+            max-width: 800px;
+        }
+
+        .feature {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--light-gray);
+        }
+
+        .feature:hover {
+            background: var(--white);
+            border-color: var(--medium-light-gray);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .feature h4 {
+            color: var(--dark-gray);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .feature p {
+            color: var(--medium-gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--dark-gray);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--medium-gray);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--dark-gray);
+            border: 2px solid var(--dark-gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-gray);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .demo-link {
+            margin-top: 2rem;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+
+        .demo-link a {
+            color: var(--medium-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .demo-link a:hover {
+            color: var(--dark-gray);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .landing-container {
+                padding: 1.5rem;
+                justify-content: flex-start;
+                padding-top: 4rem;
+            }
+            
+            .logo {
+                margin-bottom: 1.5rem;
+            }
+            
+            .logo-image {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .logo-text {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1.2rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .nav-menu {
+                width: 100%;
+                right: -100%;
+            }
+
+            .profile-image img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <div class="header">
+        <button class="hamburger" onclick="toggleMenu()">
+            <span class="hamburger-icon"></span>
+            <span class="hamburger-icon"></span>
+            <span class="hamburger-icon"></span>
+        </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="nav-menu" id="navMenu">
+        <div class="nav-header">
+            <div class="nav-title">Menu</div>
+            <button class="close-btn" onclick="toggleMenu()">×</button>
+        </div>
+        
+        <div class="nav-section">
+            <h3>About the Developer</h3>
+            <div class="developer-profile">
+                <div class="profile-image">
+                    <img src="GOPR0809-Enhanced-NR.jpg" alt="Qhelani Moyo - Wildlife Photographer" />
+                </div>
+                <p>
+                    Qhelani Moyo is a passionate wildlife and nature photographer from Zimbabwe, 
+                    dedicated to sharing the beauty of the natural world. As a content creator on 
+                    <a href="https://www.instagram.com/qhelani_moyo/" target="_blank" rel="noopener noreferrer">Instagram</a>, 
+                    he documents his conservation journeys and wildlife encounters, aiming to spread awareness 
+                    about environmental protection. Currently pursuing Computer Science in the US, 
+                    Qhelani hopes to merge his love for conservation with technology to create innovative 
+                    solutions for wildlife preservation.
+                </p>
+            </div>
+        </div>
+        
+        <div class="nav-section">
+            <h3>Contact</h3>
+            <div class="contact-links">
+                <a href="mailto:qhestoemoyo@gmail.com" class="contact-link">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    Email
+                </a>
+                <a href="http://www.linkedin.com/in/qhelani-moyo" target="_blank" rel="noopener noreferrer" class="contact-link">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                    </svg>
+                    LinkedIn
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="landing-container">
+        <div class="logo">
+            <img src="image.png" alt="Flycatcher Logo" class="logo-image" />
+            <span class="logo-text">Flycatcher</span>
+        </div>
+        
+        <div class="tagline">
+            Where every bird tells a story
+        </div>
+        
+        <div class="description">
+            Discover the fascinating world of bird distribution across Southern Africa. 
+            Our app brings you real-time bird observations from the eBird database, 
+            visualized on interactive maps with detailed species information.
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h4>Real-time Data</h4>
+                <p>Live bird observations from eBird's global database</p>
+            </div>
+            <div class="feature">
+                <h4>Interactive Maps</h4>
+                <p>Google Maps integration with custom bird markers</p>
+            </div>
+            <div class="feature">
+                <h4>Rich Analytics</h4>
+                <p>Species counts, observation details, and statistics</p>
+            </div>
+            <div class="feature">
+                <h4>Multi-region</h4>
+                <p>Explore 7 Southern African countries</p>
+            </div>
+        </div>
+        
+        <div class="auth-buttons">
+            <button class="btn btn-primary" onclick="showSignup()">Sign Up</button>
+            <button class="btn btn-secondary" onclick="showLogin()">Log In</button>
+        </div>
+        
+        <div class="demo-link">
+            <a href="#" onclick="goToDemo()">Just want to explore? Try our demo →</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                This app is powered by <a href="https://ebird.org" target="_blank" rel="noopener noreferrer">eBird</a> and <a href="https://developers.google.com/maps" target="_blank" rel="noopener noreferrer">Google Maps</a>
+            </div>
+            
+            <div class="copyright">
+                © Qhelani Moyo 2025. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.querySelector('.hamburger');
+            
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const navMenu = document.getElementById('navMenu');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('active');
+            }
+        });
+
+        function showSignup() {
+            // For now, redirect to main app
+            // In a real app, this would show a signup form
+            alert('Signup functionality coming soon! For now, enjoy the demo.');
+            goToDemo();
+        }
+
+        function showLogin() {
+            // For now, redirect to main app
+            // In a real app, this would show a login form
+            alert('Login functionality coming soon! For now, enjoy the demo.');
+            goToDemo();
+        }
+
+        function goToDemo() {
+            window.location.href = '/app';
+        }
+
+        // Add some interactive hover effects
+        document.querySelectorAll('.feature').forEach(feature => {
+            feature.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 10px 25px var(--shadow)';
+            });
+            
+            feature.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

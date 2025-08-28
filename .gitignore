@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+ENV/
+.env
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Secrets (do not commit real keys)
+backend/api_keys.py
+backend/.env
+
+# Frontend build artifacts (if any later)
+dist/
