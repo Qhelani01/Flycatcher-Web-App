@@ -196,5 +196,45 @@ def species_info(species_code):
             "note": f"Species code '{species_code}' was not found in eBird's taxonomy database."
         })
 
+@app.route("/api/geocode")
+def geocode_address():
+    """Geocode an address using Google Maps API"""
+    if not GOOGLE_MAPS_API_KEY:
+        return jsonify({"error": "Server missing GOOGLE_MAPS_API_KEY"}), 500
+    
+    address = request.args.get('address')
+    if not address:
+        return jsonify({"error": "Address parameter required"}), 400
+    
+    try:
+        url = "https://maps.googleapis.com/maps/api/geocode/json"
+        params = {
+            'address': address,
+            'key': GOOGLE_MAPS_API_KEY
+        }
+        
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        
+        if data.get('status') == 'OK' and data.get('results'):
+            result = data['results'][0]
+            location = result['geometry']['location']
+            return jsonify({
+                "success": True,
+                "location": {
+                    "lat": location['lat'],
+                    "lng': location['lng']
+                },
+                "formatted_address": result['formatted_address']
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"Geocoding failed: {data.get('status', 'Unknown error')}"
+            })
+            
+    except requests.RequestException as e:
+        return jsonify({"error": "Network error contacting Google Maps", "detail": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
