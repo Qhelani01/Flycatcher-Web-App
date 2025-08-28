@@ -83,6 +83,9 @@
                 Flycatcher
             </a>
         </div>
+        <div class="user-welcome" id="userWelcome" style="display: none;">
+            <span style="color: var(--accent); font-weight: 600;">Welcome, <span id="userName"></span>!</span>
+        </div>
         <div class="controls">
             <select id="region">
                 <option value="ZA" selected>South Africa (ZA)</option>
@@ -368,7 +371,17 @@ async function loadData(){
     }, 8000);
 }
 
+// Check for user session and display welcome message
+function checkUserSession() {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (user && user.name) {
+        document.getElementById('userWelcome').style.display = 'block';
+        document.getElementById('userName').textContent = user.name;
+    }
+}
+
 bootstrap();
+checkUserSession();
 </script>
 
 <!-- Footer -->
