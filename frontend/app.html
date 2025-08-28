@@ -141,7 +141,7 @@ async function bootstrap(){
     // Get Maps key first
     let cfg;
     try { cfg = await fetch('/api/config').then(r=>r.json()); } catch(e){ cfg = {}; }
-    const gKey = cfg.googleMapsApiKey;
+    const gKey = cfg.google_maps_api_key;
 
     try{
         await loadGoogleMaps(gKey);
