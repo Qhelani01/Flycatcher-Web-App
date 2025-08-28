@@ -17,8 +17,11 @@ ENV/
 backend/api_keys.py
 backend/.env
 api_keys.py
+api_keys_template.py
+*.env
 .env
 .env.local
+.env.*
 
 # Frontend build artifacts (if any later)
 dist/

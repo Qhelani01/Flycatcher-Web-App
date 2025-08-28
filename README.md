@@ -41,11 +41,23 @@ A modern, responsive web application for exploring bird observations in Southern
    ```
 
 3. **Configure API keys**
+   
+   **For Local Development:**
    - Create a `backend/api_keys.py` file with your API keys:
    ```python
    EBIRD_API_KEY = "your_ebird_api_key_here"
    GOOGLE_MAPS_API_KEY = "your_google_maps_api_key_here"
    ```
+   
+   **For Production (Render):**
+   - Set these as environment variables in your hosting platform:
+   ```
+   EBIRD_API_KEY = your_ebird_api_key_here
+   GOOGLE_MAPS_API_KEY = your_google_maps_api_key_here
+   DEFAULT_REGION = ZA
+   ```
+   
+   **⚠️ IMPORTANT:** Never commit API keys to GitHub! The `api_keys.py` file is already in `.gitignore`.
 
 4. **Run the application**
    ```bash
