@@ -16,6 +16,9 @@ ENV/
 # Secrets (do not commit real keys)
 backend/api_keys.py
 backend/.env
+api_keys.py
+.env
+.env.local
 
 # Frontend build artifacts (if any later)
 dist/

@@ -1,11 +1,12 @@
-# Flycatcher App - API Keys for Render Deployment
-# These will be overridden by environment variables in production
+# Flycatcher App - API Keys Template
+# Copy this file to api_keys.py and add your real API keys
+# IMPORTANT: Never commit api_keys.py to GitHub!
 
 # Your eBird API key
-EBIRD_API_KEY = "52o8av9ppbrv"
+EBIRD_API_KEY = "your_ebird_api_key_here"
 
 # Your Google Maps API key
-GOOGLE_MAPS_API_KEY = "AIzaSyBMHU-IqEHFwlWAN0CWo0gvz4YGvH167hE"
+GOOGLE_MAPS_API_KEY = "your_google_maps_api_key_here"
 
 # eBird API configuration
 EBIRD_API_BASE_URL = "https://api.ebird.org/v2"

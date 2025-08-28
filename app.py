@@ -3,13 +3,11 @@ import requests
 from datetime import datetime
 import time
 
-# Load API keys
-try:
-    from api_keys import EBIRD_API_KEY, DEFAULT_REGION, GOOGLE_MAPS_API_KEY
-except Exception:
-    EBIRD_API_KEY = None
-    DEFAULT_REGION = "ZA"
-    GOOGLE_MAPS_API_KEY = ""
+# Load API keys from environment variables
+import os
+EBIRD_API_KEY = os.environ.get('EBIRD_API_KEY')
+DEFAULT_REGION = os.environ.get('DEFAULT_REGION', 'ZA')
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
 
 # Cache for eBird taxonomy data
 TAXONOMY_CACHE = {}
