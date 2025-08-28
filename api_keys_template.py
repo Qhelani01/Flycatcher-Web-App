@@ -3,10 +3,10 @@
 # IMPORTANT: Never commit api_keys.py to GitHub!
 
 # Your eBird API key
-EBIRD_API_KEY = "your_ebird_api_key_here"
+EBIRD_API_KEY = "52o8av9ppbrv"
 
-# Your Google Maps API key
-GOOGLE_MAPS_API_KEY = "your_google_maps_api_key_here"
+# Your Google Maps API key (REGENERATED - SECURE)
+GOOGLE_MAPS_API_KEY = "AIzaSyAETk0gznZOQakJdOAvzXBrHxLLaFIFDRU"
 
 # eBird API configuration
 EBIRD_API_BASE_URL = "https://api.ebird.org/v2"

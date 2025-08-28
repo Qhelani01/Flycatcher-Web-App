@@ -1,7 +1,9 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session, redirect, url_for
 import requests
 from datetime import datetime
 import time
+import secrets
+from users import authenticate_user, get_user_by_email
 
 # Load API keys from environment variables
 import os
@@ -15,6 +17,7 @@ TAXONOMY_CACHE_TIMESTAMP = 0
 CACHE_DURATION = 3600  # Cache for 1 hour
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)  # For session management
 
 # Serve frontend files
 @app.route('/')
@@ -86,6 +89,37 @@ def observations():
             return jsonify({"error": f"eBird API error: {r.status_code}"}), 502
     except requests.RequestException as e:
         return jsonify({"error": "Network error contacting eBird", "detail": str(e)}), 502
+
+# Authentication routes
+@app.route("/api/login", methods=["POST"])
+def login():
+    """Handle user login"""
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    
+    if not email or not password:
+        return jsonify({"success": False, "error": "Email and password required"}), 400
+    
+    result = authenticate_user(email, password)
+    if result["success"]:
+        session['user'] = result["user"]
+        return jsonify(result)
+    else:
+        return jsonify(result), 401
+
+@app.route("/api/logout")
+def logout():
+    """Handle user logout"""
+    session.pop('user', None)
+    return jsonify({"success": True, "message": "Logged out successfully"})
+
+@app.route("/api/user")
+def get_current_user():
+    """Get current logged-in user"""
+    if 'user' in session:
+        return jsonify({"success": True, "user": session['user']})
+    return jsonify({"success": False, "user": None})
 
 @app.route("/api/species/<species_code>")
 def species_info(species_code):

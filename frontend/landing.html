@@ -400,6 +400,76 @@
         .demo-link a:hover {
             color: var(--dark-gray);
         }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--muted);
+        }
+        
+        .close:hover {
+            color: var(--accent);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .demo-credentials {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 6px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .demo-credentials p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
 
         @keyframes fadeInUp {
             from {
@@ -567,6 +637,53 @@
         <div class="demo-link">
             <a href="#" onclick="goToDemo()">Just want to explore? Try our demo →</a>
         </div>
+        
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+                <h2>Log In</h2>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Log In</button>
+                </form>
+                <div class="demo-credentials">
+                    <p><strong>Demo Credentials:</strong></p>
+                    <p>Email: demo@flycatcher.com</p>
+                    <p>Password: demo123</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Signup Modal -->
+        <div id="signupModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('signupModal')">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signupName">Full Name:</label>
+                        <input type="text" id="signupName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email:</label>
+                        <input type="email" id="signupEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password:</label>
+                        <input type="password" id="signupPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->
@@ -619,7 +736,74 @@
         function goToDemo() {
             window.location.href = '/app.html';
         }
-
+        
+        // Modal functions
+        function showLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        
+        function showSignup() {
+            document.getElementById('signupModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+        
+        // Authentication functions
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Welcome back, ${data.user.name}!`);
+                    closeModal('loginModal');
+                    // Redirect to app or update UI
+                    window.location.href = '/app.html';
+                } else {
+                    alert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        }
+        
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            // For demo purposes, show success message
+            alert(`Welcome to Flycatcher, ${name}! Your account has been created.`);
+            closeModal('signupModal');
+            
+            // In a real app, you'd send this to your backend
+            // For now, we'll just show a success message
+        }
+        
         // Add some interactive hover effects
         document.querySelectorAll('.feature').forEach(feature => {
             feature.addEventListener('mouseenter', function() {
