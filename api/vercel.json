@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "config.py": {
+      "runtime": "python3.9"
+    },
+    "observations.py": {
+      "runtime": "python3.9"
+    },
+    "species.py": {
+      "runtime": "python3.9"
+    }
+  }
+}
