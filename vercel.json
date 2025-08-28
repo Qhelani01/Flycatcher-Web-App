@@ -1,19 +1,28 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/config.py": {
+      "runtime": "python3.9"
     },
-    {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
+    "api/observations.py": {
+      "runtime": "python3.9"
+    },
+    "api/species.py": {
+      "runtime": "python3.9"
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/config",
+      "dest": "/api/config.py"
+    },
+    {
+      "src": "/api/observations",
+      "dest": "/api/observations.py"
+    },
+    {
+      "src": "/api/species/(.*)",
+      "dest": "/api/species.py"
     },
     {
       "src": "/(.*)",
