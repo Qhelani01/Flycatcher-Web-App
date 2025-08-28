@@ -439,22 +439,36 @@
         }
         
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
         
         .form-group input {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid var(--border);
+            border: 2px solid var(--border);
             border-radius: 6px;
             font-size: 1rem;
+            background: white;
+            color: var(--text);
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.1);
+        }
+        
+        .form-group input::placeholder {
+            color: var(--muted);
         }
         
         .demo-credentials {
@@ -646,11 +660,11 @@
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginEmail">Email:</label>
-                        <input type="email" id="loginEmail" required>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password:</label>
-                        <input type="password" id="loginPassword" required>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Log In</button>
                 </form>
@@ -670,15 +684,15 @@
                 <form id="signupForm" onsubmit="handleSignup(event)">
                     <div class="form-group">
                         <label for="signupName">Full Name:</label>
-                        <input type="text" id="signupName" required>
+                        <input type="text" id="signupName" placeholder="Enter your full name" required>
                     </div>
                     <div class="form-group">
                         <label for="signupEmail">Email:</label>
-                        <input type="email" id="signupEmail" required>
+                        <input type="email" id="signupEmail" placeholder="Enter your email address" required>
                     </div>
                     <div class="form-group">
                         <label for="signupPassword">Password:</label>
-                        <input type="password" id="signupPassword" required>
+                        <input type="password" id="signupPassword" placeholder="Create a password" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Sign Up</button>
                 </form>
