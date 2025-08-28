@@ -72,6 +72,57 @@
             cursor: not-allowed;
             transform: none;
         }
+        
+        /* Search Bar Styles */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 20px;
+        }
+        
+        .search-input {
+            width: 300px;
+            padding: 10px 16px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-size: 14px;
+            background: white;
+            color: var(--text);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.1);
+        }
+        
+        .search-input::placeholder {
+            color: #9E9E9E;
+            font-style: italic;
+        }
+        
+        .search-btn {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            background: #2A2A2A;
+            transform: translateY(-1px);
+        }
+        
+        .search-btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -85,6 +136,15 @@
         </div>
         <div class="user-welcome" id="userWelcome" style="display: none;">
             <span style="color: var(--accent); font-weight: 600;">Welcome, <span id="userName"></span>!</span>
+        </div>
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="searchBar" 
+                placeholder="Search location or species..." 
+                class="search-input"
+            >
+            <button id="searchBtn" class="search-btn">Search</button>
         </div>
         <div class="controls">
             <select id="region">
@@ -132,7 +192,7 @@ function loadGoogleMaps(apiKey){
     return new Promise((resolve, reject)=>{
         if(window.google && google.maps) return resolve();
         const s = document.createElement('script');
-        s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+        s.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry`;
         s.async = true; s.defer = true;
         s.onload = ()=> resolve();
         s.onerror = ()=> reject(new Error('Maps script failed to load'));
@@ -153,7 +213,15 @@ async function bootstrap(){
         document.getElementById('mapError').style.display = 'block';
     }
 
-    document.getElementById('loadBtn').addEventListener('click', loadData);
+            document.getElementById('loadBtn').addEventListener('click', loadData);
+        
+        // Add search functionality
+        document.getElementById('searchBtn').addEventListener('click', performSearch);
+        document.getElementById('searchBar').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
 }
 
 function initMap(){
@@ -378,6 +446,221 @@ function checkUserSession() {
         document.getElementById('userWelcome').style.display = 'block';
         document.getElementById('userName').textContent = user.name;
     }
+}
+
+// Search functionality
+async function performSearch() {
+    const searchTerm = document.getElementById('searchBar').value.trim();
+    if (!searchTerm) return;
+    
+    const searchBtn = document.getElementById('searchBtn');
+    searchBtn.disabled = true;
+    searchBtn.textContent = 'Searching...';
+    
+    try {
+        // First, try to search as a location using Google Geocoding
+        const locationResults = await searchLocation(searchTerm);
+        if (locationResults.success) {
+            // Location found - zoom to it and get bird data
+            const location = locationResults.location;
+            map.setCenter(location);
+            map.setZoom(12);
+            
+            // Get bird observations for this location
+            await getObservationsForLocation(location, searchTerm);
+            return;
+        }
+        
+        // If not a location, try searching as a species
+        const speciesResults = await searchSpecies(searchTerm);
+        if (speciesResults.success) {
+            // Species found - show all observations
+            await getObservationsForSpecies(searchTerm);
+            return;
+        }
+        
+        // If neither location nor species found
+        alert(`No results found for "${searchTerm}". Try a different location or species name.`);
+        
+    } catch (error) {
+        console.error('Search error:', error);
+        alert('Search failed. Please try again.');
+    } finally {
+        searchBtn.disabled = false;
+        searchBtn.textContent = 'Search';
+    }
+}
+
+// Search for a location using Google Geocoding
+async function searchLocation(searchTerm) {
+    try {
+        // Get the Google Maps API key from the config
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        const apiKey = config.google_maps_api_key;
+        
+        const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchTerm)}&key=${apiKey}`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+            const location = data.results[0].geometry.location;
+            return {
+                success: true,
+                location: { lat: location.lat, lng: location.lng },
+                formattedAddress: data.results[0].formatted_address
+            };
+        }
+        return { success: false };
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        return { success: false };
+    }
+}
+
+// Search for a species in eBird
+async function searchSpecies(searchTerm) {
+    try {
+        // Search in the current region with the selected time frame
+        const region = document.getElementById('region').value;
+        const back = document.getElementById('back').value;
+        
+        const response = await fetch(`/api/observations?region=${encodeURIComponent(region)}&back=${encodeURIComponent(back)}&maxResults=1000`);
+        const data = await response.json();
+        
+        if (data.observations) {
+            // Filter observations by species name (case-insensitive)
+            const filteredObservations = data.observations.filter(obs => 
+                obs.common_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                obs.scientific_name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            if (filteredObservations.length > 0) {
+                return {
+                    success: true,
+                    observations: filteredObservations
+                };
+            }
+        }
+        return { success: false };
+    } catch (error) {
+        console.error('Species search error:', error);
+        return { success: false };
+    }
+}
+
+// Get observations for a specific location
+async function getObservationsForLocation(location, locationName) {
+    try {
+        // Get observations from the current region and time frame
+        const region = document.getElementById('region').value;
+        const back = document.getElementById('back').value;
+        
+        const response = await fetch(`/api/observations?region=${encodeURIComponent(region)}&back=${encodeURIComponent(back)}&maxResults=1000`);
+        const data = await response.json();
+        
+        if (data.observations) {
+            // Filter observations near the searched location (within ~10km radius)
+            const nearbyObservations = data.observations.filter(obs => {
+                if (!obs.latitude || !obs.longitude) return false;
+                
+                const distance = google.maps.geometry.spherical.computeDistanceBetween(
+                    new google.maps.LatLng(location.lat, location.lng),
+                    new google.maps.LatLng(obs.latitude, obs.longitude)
+                );
+                
+                return distance <= 10000; // 10km radius
+            });
+            
+            if (nearbyObservations.length > 0) {
+                // Display results
+                renderList(nearbyObservations);
+                renderMarkers(nearbyObservations);
+                document.getElementById('obsCount').textContent = nearbyObservations.length;
+                document.getElementById('spCount').textContent = new Set(nearbyObservations.map(i => i.species_code)).size;
+                
+                // Add a marker for the searched location
+                addSearchedLocationMarker(location, locationName);
+                
+                alert(`Found ${nearbyObservations.length} bird observations near ${locationName}`);
+            } else {
+                alert(`No bird observations found near ${locationName} in the selected time frame.`);
+            }
+        }
+    } catch (error) {
+        console.error('Error getting location observations:', error);
+        alert('Failed to get observations for this location.');
+    }
+}
+
+// Get observations for a specific species
+async function getObservationsForSpecies(speciesName) {
+    try {
+        const region = document.getElementById('region').value;
+        const back = document.getElementById('back').value;
+        
+        const response = await fetch(`/api/observations?region=${encodeURIComponent(region)}&back=${encodeURIComponent(back)}&maxResults=1000`);
+        const data = await response.json();
+        
+        if (data.observations) {
+            // Filter observations by species name
+            const speciesObservations = data.observations.filter(obs => 
+                obs.common_name.toLowerCase().includes(speciesName.toLowerCase()) ||
+                obs.scientific_name.toLowerCase().includes(speciesName.toLowerCase())
+            );
+            
+            if (speciesObservations.length > 0) {
+                // Display results
+                renderList(speciesObservations);
+                renderMarkers(speciesObservations);
+                document.getElementById('obsCount').textContent = speciesObservations.length;
+                document.getElementById('spCount').textContent = new Set(speciesObservations.map(i => i.species_code)).size;
+                
+                // Fit map to show all species observations
+                if (speciesObservations.length > 0) {
+                    const bounds = new google.maps.LatLngBounds();
+                    speciesObservations.forEach(obs => {
+                        if (obs.latitude && obs.longitude) {
+                            bounds.extend(new google.maps.LatLng(obs.latitude, obs.longitude));
+                        }
+                    });
+                    map.fitBounds(bounds);
+                }
+                
+                alert(`Found ${speciesObservations.length} observations of ${speciesName} in the selected time frame.`);
+            } else {
+                alert(`No observations of ${speciesName} found in the selected time frame.`);
+            }
+        }
+    } catch (error) {
+        console.error('Error getting species observations:', error);
+        alert('Failed to get observations for this species.');
+    }
+}
+
+// Add a special marker for the searched location
+function addSearchedLocationMarker(location, locationName) {
+    const marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: `Searched: ${locationName}`,
+        icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#FF6B6B" stroke="white" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="4" fill="white"/>
+                </svg>
+            `),
+            scaledSize: new google.maps.Size(24, 24)
+        }
+    });
+    
+    // Add info window
+    const infoWindow = new google.maps.InfoWindow({
+        content: `<div style="min-width:200px"><strong>📍 ${locationName}</strong><br/>Searched location</div>`
+    });
+    
+    marker.addListener('click', () => infoWindow.open(map, marker));
+    markers.push(marker);
 }
 
 bootstrap();
