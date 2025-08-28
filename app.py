@@ -223,7 +223,7 @@ def geocode_address():
                 "success": True,
                 "location": {
                     "lat": location['lat'],
-                    "lng': location['lng']
+                                                   "lng": location['lng']
                 },
                 "formatted_address": result['formatted_address']
             })
