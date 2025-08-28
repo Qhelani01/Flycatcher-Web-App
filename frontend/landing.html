@@ -506,62 +506,7 @@
             color: var(--muted);
         }
         
-        /* Welcome Message Styles */
-        #welcomeMessage {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .welcome-container {
-            text-align: center;
-            padding: 3rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 90%;
-        }
-        
-        .welcome-content h2 {
-            color: var(--accent);
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .welcome-content p {
-            color: var(--muted);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+
 
         @keyframes fadeInUp {
             from {
@@ -867,19 +812,14 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
-                    // Store user info in localStorage for the session
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    // Show welcome message
-                    showWelcomeMessage(data.user.name);
-                    
-                    // Close modal and redirect after a brief delay
-                    closeModal('loginModal');
-                    setTimeout(() => {
-                        window.location.href = '/app';
-                    }, 1500);
-                } else {
+                               if (data.success) {
+                   // Store user info in localStorage for the session
+                   localStorage.setItem('user', JSON.stringify(data.user));
+                   
+                   // Close modal and redirect immediately
+                   closeModal('loginModal');
+                   window.location.href = '/app';
+               } else {
                     alert(data.error || 'Login failed');
                 }
             } catch (error) {
@@ -895,37 +835,15 @@
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             
-            // For demo purposes, show success message
-            alert(`Welcome to Flycatcher, ${name}! Your account has been created.`);
-            closeModal('signupModal');
+            // For demo purposes, create a user object and redirect
+            const user = { name: name, email: email, role: 'user' };
+            localStorage.setItem('user', JSON.stringify(user));
             
-            // In a real app, you'd send this to your backend
-            // For now, we'll just show a success message
+            closeModal('signupModal');
+            window.location.href = '/app';
         }
         
-        // Welcome message function
-        function showWelcomeMessage(userName) {
-            // Create welcome message element
-            const welcomeDiv = document.createElement('div');
-            welcomeDiv.id = 'welcomeMessage';
-            welcomeDiv.innerHTML = `
-                <div class="welcome-container">
-                    <div class="welcome-content">
-                        <h2>Welcome, ${userName}! 🎉</h2>
-                        <p>Redirecting you to the app...</p>
-                        <div class="loading-spinner"></div>
-                    </div>
-                </div>
-            `;
-            
-            // Add to body
-            document.body.appendChild(welcomeDiv);
-            
-            // Show with animation
-            setTimeout(() => {
-                welcomeDiv.style.opacity = '1';
-            }, 100);
-        }
+
         
         // Add some interactive hover effects
         document.querySelectorAll('.feature').forEach(feature => {
